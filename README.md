@@ -99,42 +99,43 @@ With its power-efficient design, built-in LoRaWAN support, and flexible communic
 ## STM 32 CUBE PROGRAM
 
 ```
-
 #include "main.h"
-#include "stdbool.h"
-bool ir_sensor;
+
+UART_HandleTypeDef huart2;
+
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_USART2_UART_Init(void);
+
 
 int main(void)
 {
-  HAL_Init();
-  SystemClock_Config();
-  MX_GPIO_Init();
   
+  SystemClock_Config();
+
+ 
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+ 
   while (1)
   {
-    /* USER CODE END WHILE */
-	  ir_sensor=HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+	  HAL_Delay(1000);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+	  HAL_Delay(1000);
 
-	  if(ir_sensor==0)
-	  {
-		  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_SET);
-	  }
-	  else
-	  {
-		  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_RESET);
-	  }
-
-    /* USER CODE BEGIN 3 */
+    
   }
-  /* USER CODE END 3 */
+ 
 }
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
+ 
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
@@ -144,7 +145,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-
+  
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK3|RCC_CLOCKTYPE_HCLK
                               |RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
                               |RCC_CLOCKTYPE_PCLK2;
@@ -160,24 +161,53 @@ void SystemClock_Config(void)
   }
 }
 
+
+static void MX_USART2_UART_Init(void)
+{
+
+ 
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart2, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart2, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  
+
+}
+
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+  
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
+  
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PB4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PA0 */
+ 
   GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -185,27 +215,30 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
+
+
 void Error_Handler(void)
 {
+  
   __disable_irq();
   while (1)
   {
   }
+  
 }
 
-#ifdef  USE_FULL_ASSERT
-
-void assert_failed(uint8_t *file, uint32_t line)
-{
-}
-#endif /* USE_FULL_ASSERT */
 
 ```
 
 ## OUTPUT
-<img width="1200" height="1600" alt="WhatsApp Image 2026-11-17 at 9 59 25 AM" src="https://github.com/user-attachments/assets/92f50228-407c-45f4-8e39-c78484ce37ab" />
+<img width="1687" height="891" alt="image" src="https://github.com/user-attachments/assets/b2b0522e-303f-4744-9d29-402d8503162a" />
 
-<img width="1200" height="1600" alt="WhatsApp Image 2026-11-17 at 9 59 26 AM" src="https://github.com/user-attachments/assets/300f5726-1546-49ba-b3b5-7cf8773a9209" />
+
+<img width="1577" height="878" alt="image" src="https://github.com/user-attachments/assets/2df16c56-1121-445d-b515-2883f55ff69c" />
+
+
+<img width="1567" height="855" alt="image" src="https://github.com/user-attachments/assets/a3d89f14-a485-4dec-a697-a0fbc3e4c911" />
+
 
 
 ## Result
